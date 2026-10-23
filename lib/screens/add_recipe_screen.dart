@@ -7,7 +7,10 @@ import '../providers/recipe_provider.dart';
 import '../widgets/common/responsive_layout.dart';
 
 class AddRecipeScreen extends StatefulWidget {
-  const AddRecipeScreen({super.key});
+  /// If provided, the screen operates in "edit" mode and pre-fills all fields.
+  final Recipe? existingRecipe;
+
+  const AddRecipeScreen({super.key, this.existingRecipe});
 
   @override
   State<AddRecipeScreen> createState() => _AddRecipeScreenState();
@@ -16,37 +19,87 @@ class AddRecipeScreen extends StatefulWidget {
 class _AddRecipeScreenState extends State<AddRecipeScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  final _titleController = TextEditingController();
-  final _descController = TextEditingController();
-  final _imageUrlController = TextEditingController();
-  final _prepTimeController = TextEditingController(text: '15');
-  final _cookTimeController = TextEditingController(text: '20');
-  final _servingsController = TextEditingController(text: '4');
-  final _caloriesController = TextEditingController(text: '350');
-  final _tagsController = TextEditingController(text: 'Homemade, Fresh, Delicious');
+  late final TextEditingController _titleController;
+  late final TextEditingController _descController;
+  late final TextEditingController _imageUrlController;
+  late final TextEditingController _prepTimeController;
+  late final TextEditingController _cookTimeController;
+  late final TextEditingController _servingsController;
+  late final TextEditingController _caloriesController;
+  late final TextEditingController _tagsController;
 
-  String _selectedCategory = 'Italian';
-  String _selectedDifficulty = 'Easy';
+  late String _selectedCategory;
+  late String _selectedDifficulty;
 
   // Dynamic ingredients list
-  final List<Map<String, TextEditingController>> _ingredientControllers = [
-    {
-      'name': TextEditingController(text: 'Olive oil'),
-      'amount': TextEditingController(text: '2 tbsp'),
-    },
-    {
-      'name': TextEditingController(text: 'Garlic cloves, minced'),
-      'amount': TextEditingController(text: '3 cloves'),
-    },
-  ];
+  late final List<Map<String, TextEditingController>> _ingredientControllers;
 
   // Dynamic steps list
-  final List<TextEditingController> _stepControllers = [
-    TextEditingController(text: 'Prepare all fresh ingredients and preheat the pan over medium heat.'),
-    TextEditingController(text: 'Cook thoroughly until golden brown and season with salt and pepper to taste.'),
-  ];
+  late final List<TextEditingController> _stepControllers;
 
   bool _isSubmitting = false;
+
+  /// Whether this screen is editing an existing recipe
+  bool get _isEditing => widget.existingRecipe != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final recipe = widget.existingRecipe;
+
+    if (recipe != null) {
+      // --- Edit mode: pre-fill from existing recipe ---
+      _titleController = TextEditingController(text: recipe.title);
+      _descController = TextEditingController(text: recipe.description);
+      _imageUrlController = TextEditingController(text: recipe.imageUrl);
+      _prepTimeController = TextEditingController(text: recipe.prepTimeMinutes.toString());
+      _cookTimeController = TextEditingController(text: recipe.cookTimeMinutes.toString());
+      _servingsController = TextEditingController(text: recipe.servings.toString());
+      _caloriesController = TextEditingController(text: recipe.calories.toString());
+      _tagsController = TextEditingController(text: recipe.tags.join(', '));
+      _selectedCategory = recipe.category;
+      _selectedDifficulty = recipe.difficulty;
+
+      _ingredientControllers = recipe.ingredients.map((ing) {
+        return {
+          'name': TextEditingController(text: ing.name),
+          'amount': TextEditingController(text: ing.amount),
+        };
+      }).toList();
+
+      _stepControllers = recipe.instructions.map((step) {
+        return TextEditingController(text: step);
+      }).toList();
+    } else {
+      // --- Add mode: defaults ---
+      _titleController = TextEditingController();
+      _descController = TextEditingController();
+      _imageUrlController = TextEditingController();
+      _prepTimeController = TextEditingController(text: '15');
+      _cookTimeController = TextEditingController(text: '20');
+      _servingsController = TextEditingController(text: '4');
+      _caloriesController = TextEditingController(text: '350');
+      _tagsController = TextEditingController(text: 'Homemade, Fresh, Delicious');
+      _selectedCategory = 'Italian';
+      _selectedDifficulty = 'Easy';
+
+      _ingredientControllers = [
+        {
+          'name': TextEditingController(text: 'Olive oil'),
+          'amount': TextEditingController(text: '2 tbsp'),
+        },
+        {
+          'name': TextEditingController(text: 'Garlic cloves, minced'),
+          'amount': TextEditingController(text: '3 cloves'),
+        },
+      ];
+
+      _stepControllers = [
+        TextEditingController(text: 'Prepare all fresh ingredients and preheat the pan over medium heat.'),
+        TextEditingController(text: 'Cook thoroughly until golden brown and season with salt and pepper to taste.'),
+      ];
+    }
+  }
 
   @override
   void dispose() {
@@ -117,7 +170,9 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
       _isSubmitting = true;
     });
 
-    final recipeId = 'custom_${DateTime.now().millisecondsSinceEpoch}';
+    final recipeId = _isEditing
+        ? widget.existingRecipe!.id
+        : 'custom_${DateTime.now().millisecondsSinceEpoch}';
 
     // Parse ingredients
     final ingredients = _ingredientControllers.map((m) {
@@ -150,7 +205,14 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
               : 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=800&auto=format&fit=crop&q=80';
     }
 
-    final newRecipe = Recipe(
+    // Preserve original rating/reviews in edit mode, use defaults for add mode
+    final rating = _isEditing ? widget.existingRecipe!.rating : 5.0;
+    final reviewsCount = _isEditing ? widget.existingRecipe!.reviewsCount : 1;
+    final protein = _isEditing ? widget.existingRecipe!.protein : 25;
+    final carbs = _isEditing ? widget.existingRecipe!.carbs : 35;
+    final fat = _isEditing ? widget.existingRecipe!.fat : 15;
+
+    final recipe = Recipe(
       id: recipeId,
       title: _titleController.text.trim(),
       category: _selectedCategory,
@@ -160,12 +222,12 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
       cookTimeMinutes: int.tryParse(_cookTimeController.text) ?? 20,
       servings: int.tryParse(_servingsController.text) ?? 4,
       difficulty: _selectedDifficulty,
-      rating: 5.0,
-      reviewsCount: 1,
+      rating: rating,
+      reviewsCount: reviewsCount,
       calories: int.tryParse(_caloriesController.text) ?? 400,
-      protein: 25,
-      carbs: 35,
-      fat: 15,
+      protein: protein,
+      carbs: carbs,
+      fat: fat,
       ingredients: ingredients,
       instructions: steps,
       tags: tags,
@@ -174,16 +236,26 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
     );
 
     final provider = Provider.of<RecipeProvider>(context, listen: false);
-    provider.addCustomRecipe(newRecipe);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: Colors.green.shade700,
-        content: Text('🎉 Recipe "${newRecipe.title}" added successfully!'),
-      ),
-    );
+    if (_isEditing) {
+      provider.updateRecipe(recipe);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.green.shade700,
+          content: Text('✅ Recipe "${recipe.title}" updated successfully!'),
+        ),
+      );
+    } else {
+      provider.addCustomRecipe(recipe);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.green.shade700,
+          content: Text('🎉 Recipe "${recipe.title}" added successfully!'),
+        ),
+      );
+    }
 
-    // Redirect to the newly created recipe detail
+    // Navigate to the recipe detail page
     context.go('/recipes/$recipeId');
   }
 
@@ -193,7 +265,17 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add New Recipe'),
+        title: Text(_isEditing ? 'Edit Recipe' : 'Add New Recipe'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go(_isEditing ? '/recipes/${widget.existingRecipe!.id}' : '/home');
+            }
+          },
+        ),
       ),
       body: SafeArea(
         child: MaxWidthContainer(
@@ -207,25 +289,35 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
+                    color: (_isEditing ? Colors.blue : AppColors.primary).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+                    border: Border.all(
+                      color: (_isEditing ? Colors.blue : AppColors.primary).withValues(alpha: 0.3),
+                    ),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.menu_book_rounded, color: AppColors.primary, size: 28),
+                      Icon(
+                        _isEditing ? Icons.edit_note_rounded : Icons.menu_book_rounded,
+                        color: _isEditing ? Colors.blue : AppColors.primary,
+                        size: 28,
+                      ),
                       const SizedBox(width: 14),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'Share Your Culinary Masterpiece',
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                            Text(
+                              _isEditing
+                                  ? 'Edit Your Recipe'
+                                  : 'Share Your Culinary Masterpiece',
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              'Fill out this validated form to publish your recipe into CookMate.',
+                              _isEditing
+                                  ? 'Update any details below and save your changes.'
+                                  : 'Fill out this validated form to publish your recipe into CookMate.',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: theme.textTheme.bodySmall?.color?.withValues(alpha: 0.75),
@@ -579,12 +671,15 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
                     onPressed: _isSubmitting ? null : _submitForm,
                     child: _isSubmitting
                         ? const CircularProgressIndicator(color: Colors.white)
-                        : const Row(
+                        : Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.check_circle_outline_rounded),
-                              SizedBox(width: 8),
-                              Text('Submit & Publish Recipe', style: TextStyle(fontSize: 16)),
+                              Icon(_isEditing ? Icons.save_rounded : Icons.check_circle_outline_rounded),
+                              const SizedBox(width: 8),
+                              Text(
+                                _isEditing ? 'Save Changes' : 'Submit & Publish Recipe',
+                                style: const TextStyle(fontSize: 16),
+                              ),
                             ],
                           ),
                   ),

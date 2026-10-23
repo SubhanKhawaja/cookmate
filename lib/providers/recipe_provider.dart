@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../data/models/recipe_model.dart';
 import '../data/recipes_data.dart';
 import '../data/services/favorites_service.dart';
+import '../data/services/rating_service.dart';
 
 enum RecipeSortOption {
   highestRated,
@@ -13,9 +14,11 @@ enum RecipeSortOption {
 
 class RecipeProvider extends ChangeNotifier {
   final FavoritesService _favoritesService = FavoritesService();
+  final RatingService _ratingService = RatingService();
 
   List<Recipe> _allRecipes = [];
   Set<String> _favoriteIds = {};
+  Map<String, double> _userRatings = {};
   bool _isLoading = true;
 
   String _selectedCategory = 'All';
@@ -27,6 +30,7 @@ class RecipeProvider extends ChangeNotifier {
   String get selectedCategory => _selectedCategory;
   String get searchQuery => _searchQuery;
   RecipeSortOption get sortOption => _sortOption;
+  Map<String, double> get userRatings => _userRatings;
 
   RecipeProvider() {
     _initializeRecipes();
@@ -41,6 +45,7 @@ class RecipeProvider extends ChangeNotifier {
       _allRecipes = jsonList.map((e) => Recipe.fromMap(e as Map<String, dynamic>)).toList();
 
       _favoriteIds = await _favoritesService.getFavoriteIds();
+      _userRatings = await _ratingService.getUserRatings();
       _syncFavorites();
     } catch (e) {
       if (kDebugMode) {
@@ -154,6 +159,65 @@ class RecipeProvider extends ChangeNotifier {
   /// Adds a newly submitted recipe from the validated submission form
   void addCustomRecipe(Recipe newRecipe) {
     _allRecipes.insert(0, newRecipe);
+    notifyListeners();
+  }
+
+  /// Updates an existing recipe in-place, preserving its list position and favorite state
+  void updateRecipe(Recipe updatedRecipe) {
+    final index = _allRecipes.indexWhere((r) => r.id == updatedRecipe.id);
+    if (index != -1) {
+      // Preserve favorite state
+      final wasFavorite = _favoriteIds.contains(updatedRecipe.id);
+      _allRecipes[index] = updatedRecipe.copyWith(isFavorite: wasFavorite);
+      notifyListeners();
+    }
+  }
+
+  /// Returns the rating given by the user for this recipe, or null if unrated
+  double? getUserRating(String recipeId) {
+    return _userRatings[recipeId];
+  }
+
+  /// Rates a recipe, updates the average rating and review count, and persists the choice
+  Future<void> rateRecipe(String recipeId, double newRating) async {
+    final index = _allRecipes.indexWhere((r) => r.id == recipeId);
+    if (index == -1) return;
+
+    final recipe = _allRecipes[index];
+    final previousRating = _userRatings[recipeId];
+
+    double updatedRating;
+    int updatedReviewsCount = recipe.reviewsCount;
+
+    if (previousRating != null) {
+      // User is updating their rating: recalculate the sum minus old rating plus new rating
+      if (recipe.reviewsCount > 0) {
+        final totalScore = (recipe.rating * recipe.reviewsCount) - previousRating + newRating;
+        updatedRating = totalScore / recipe.reviewsCount;
+      } else {
+        updatedRating = newRating;
+        updatedReviewsCount = 1;
+      }
+    } else {
+      // First time rating by this user
+      final totalScore = (recipe.rating * recipe.reviewsCount) + newRating;
+      updatedReviewsCount = recipe.reviewsCount + 1;
+      updatedRating = totalScore / updatedReviewsCount;
+    }
+
+    // Clamp between 1.0 and 5.0 and round to 1 decimal place
+    updatedRating = (updatedRating * 10).roundToDouble() / 10;
+    if (updatedRating > 5.0) updatedRating = 5.0;
+    if (updatedRating < 1.0) updatedRating = 1.0;
+
+    _userRatings[recipeId] = newRating;
+    await _ratingService.saveUserRating(recipeId, newRating);
+
+    _allRecipes[index] = recipe.copyWith(
+      rating: updatedRating,
+      reviewsCount: updatedReviewsCount,
+    );
+
     notifyListeners();
   }
 }

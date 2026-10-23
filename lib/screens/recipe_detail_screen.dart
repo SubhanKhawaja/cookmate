@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../core/constants/app_colors.dart';
+import '../data/models/recipe_model.dart';
 import '../providers/recipe_provider.dart';
 import '../widgets/common/nutrition_badge.dart';
 import '../widgets/common/rating_stars.dart';
 import '../widgets/common/responsive_layout.dart';
+import '../widgets/recipe/rate_recipe_sheet.dart';
 
 class RecipeDetailScreen extends StatefulWidget {
   final String recipeId;
@@ -106,6 +108,41 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                   ),
                 ),
               ),
+              // Rate button
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: CircleAvatar(
+                  backgroundColor: Colors.black.withValues(alpha: 0.5),
+                  child: IconButton(
+                    icon: Icon(
+                      recipeProvider.getUserRating(recipe.id) != null
+                          ? Icons.star_rounded
+                          : Icons.star_border_rounded,
+                      color: recipeProvider.getUserRating(recipe.id) != null
+                          ? AppColors.ratingStar
+                          : Colors.white,
+                    ),
+                    tooltip: 'Rate Recipe',
+                    onPressed: () {
+                      RateRecipeSheet.show(context, recipe);
+                    },
+                  ),
+                ),
+              ),
+              // Edit button
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: CircleAvatar(
+                  backgroundColor: Colors.black.withValues(alpha: 0.5),
+                  child: IconButton(
+                    icon: const Icon(Icons.edit_rounded, color: Colors.white),
+                    tooltip: 'Edit Recipe',
+                    onPressed: () {
+                      context.push('/recipes/${recipe.id}/edit');
+                    },
+                  ),
+                ),
+              ),
               // Share button
               Padding(
                 padding: const EdgeInsets.only(right: 12, top: 8, bottom: 8),
@@ -178,16 +215,36 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                             ),
                           ),
                         ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withValues(alpha: 0.6),
+                        Material(
+                          color: Colors.transparent,
+                          child: InkWell(
                             borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: RatingStars(
-                            rating: recipe.rating,
-                            reviewsCount: recipe.reviewsCount,
-                            textStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                            onTap: () {
+                              RateRecipeSheet.show(context, recipe);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withValues(alpha: 0.6),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  RatingStars(
+                                    rating: recipe.rating,
+                                    reviewsCount: recipe.reviewsCount,
+                                    textStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  const Icon(
+                                    Icons.touch_app_outlined,
+                                    size: 13,
+                                    color: Colors.white70,
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
                       ],
@@ -495,7 +552,12 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
                       },
                     ),
 
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 28),
+
+                    // Ratings & Reviews Interactive Section
+                    _buildRatingSection(context, recipe, recipeProvider, isDark),
+
+                    const SizedBox(height: 28),
 
                     // Tags Wrap
                     const Text(
@@ -574,6 +636,203 @@ class _RecipeDetailScreenState extends State<RecipeDetailScreen> {
       width: 1,
       height: 30,
       color: Theme.of(context).dividerColor.withValues(alpha: 0.2),
+    );
+  }
+
+  Widget _buildRatingSection(
+    BuildContext context,
+    Recipe recipe,
+    RecipeProvider provider,
+    bool isDark,
+  ) {
+    final userRating = provider.getUserRating(recipe.id);
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF242424) : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Rating & Reviews',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              TextButton.icon(
+                onPressed: () {
+                  RateRecipeSheet.show(context, recipe);
+                },
+                icon: Icon(
+                  userRating != null ? Icons.edit_rounded : Icons.star_rate_rounded,
+                  size: 16,
+                  color: AppColors.primary,
+                ),
+                label: Text(
+                  userRating != null ? 'Edit Rating' : 'Rate Recipe',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+
+          // Community rating summary
+          Row(
+            children: [
+              Text(
+                recipe.rating.toStringAsFixed(1),
+                style: const TextStyle(
+                  fontSize: 38,
+                  fontWeight: FontWeight.w900,
+                  height: 1.0,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: List.generate(5, (index) {
+                      final starVal = (index + 1).toDouble();
+                      return Icon(
+                        starVal <= recipe.rating
+                            ? Icons.star_rounded
+                            : (starVal - 0.5 <= recipe.rating
+                                ? Icons.star_half_rounded
+                                : Icons.star_outline_rounded),
+                        size: 20,
+                        color: AppColors.ratingStar,
+                      );
+                    }),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${recipe.reviewsCount} community ratings',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+          Divider(color: Theme.of(context).dividerColor.withValues(alpha: 0.15)),
+          const SizedBox(height: 12),
+
+          // Interactive Quick Rating
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                userRating != null ? 'Your Rating:' : 'Rate this recipe:',
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              if (userRating != null)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    '${userRating.toStringAsFixed(1)} ★ Rated',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 10),
+
+          // 5 interactive stars
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(5, (index) {
+              final starValue = (index + 1).toDouble();
+              final isFilled = starValue <= (userRating ?? 0.0);
+
+              return InkWell(
+                borderRadius: BorderRadius.circular(20),
+                onTap: () async {
+                  final messenger = ScaffoldMessenger.of(context);
+                  await provider.rateRecipe(recipe.id, starValue);
+                  if (!mounted) return;
+                  messenger.showSnackBar(
+                    SnackBar(
+                      behavior: SnackBarBehavior.floating,
+                      duration: const Duration(milliseconds: 1800),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      content: Row(
+                        children: [
+                          const Icon(
+                            Icons.check_circle_rounded,
+                            color: Colors.greenAccent,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 10),
+                          Text('You rated this recipe ${starValue.toInt()} ★!'),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  child: Icon(
+                    isFilled ? Icons.star_rounded : Icons.star_outline_rounded,
+                    size: 34,
+                    color: isFilled ? AppColors.ratingStar : Colors.grey.shade400,
+                  ),
+                ),
+              );
+            }),
+          ),
+          const SizedBox(height: 6),
+          Center(
+            child: Text(
+              userRating != null
+                  ? 'Tap any star to update your rating'
+                  : 'Tap a star to rate instantly',
+              style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.6),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

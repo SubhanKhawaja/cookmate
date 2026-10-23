@@ -6,6 +6,7 @@ class RatingStars extends StatelessWidget {
   final int? reviewsCount;
   final double iconSize;
   final TextStyle? textStyle;
+  final VoidCallback? onTap;
 
   const RatingStars({
     super.key,
@@ -13,11 +14,12 @@ class RatingStars extends StatelessWidget {
     this.reviewsCount,
     this.iconSize = 16,
     this.textStyle,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    final content = Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -47,5 +49,18 @@ class RatingStars extends StatelessWidget {
         ],
       ],
     );
+
+    if (onTap != null) {
+      return InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+          child: content,
+        ),
+      );
+    }
+
+    return content;
   }
 }

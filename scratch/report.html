@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CookMate Technical Project Report - Subhan Khawaja (SEP26-FD22-31)</title>
+<style>
+  @page {
+    size: A4;
+    margin: 15mm 15mm 15mm 15mm;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: #24292f;
+    line-height: 1.6;
+    font-size: 12.5px;
+    margin: 0;
+    padding: 0;
+  }
+  .student-card {
+    background: #f8fafc;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    margin: 18px 0 24px 0;
+    overflow: hidden;
+    page-break-inside: avoid;
+  }
+  .student-card-header {
+    background: #0f172a;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 7px 14px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .student-table {
+    width: 100%;
+    margin: 0 !important;
+    border-collapse: collapse;
+    background: transparent;
+  }
+  .student-table td {
+    border: 1px solid #e2e8f0 !important;
+    padding: 8px 12px !important;
+    font-size: 12.5px !important;
+  }
+  .student-table td.label {
+    width: 18%;
+    background-color: #f1f5f9;
+    color: #334155;
+  }
+  .student-table td.value {
+    width: 32%;
+    color: #0f172a;
+    font-weight: 600;
+  }
+  h1 {
+    font-size: 23px;
+    border-bottom: 2px solid #e1e4e8;
+    padding-bottom: 8px;
+    color: #0f172a;
+    margin-top: 0;
+    margin-bottom: 8px;
+  }
+  h2 {
+    font-size: 17px;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 6px;
+    margin-top: 24px;
+    color: #1e293b;
+    page-break-after: avoid;
+  }
+  h3 {
+    font-size: 14.5px;
+    margin-top: 18px;
+    color: #334155;
+    page-break-after: avoid;
+  }
+  p, ul, ol {
+    margin-top: 0;
+    margin-bottom: 12px;
+  }
+  li {
+    margin-bottom: 4px;
+  }
+  hr {
+    border: none;
+    border-top: 1px solid #cbd5e1;
+    margin: 20px 0;
+  }
+  code {
+    font-family: "Consolas", "Courier New", monospace;
+    font-size: 11.5px;
+    background-color: #f1f5f9;
+    padding: 2px 5px;
+    border-radius: 4px;
+    border: 1px solid #e2e8f0;
+  }
+  pre {
+    background-color: #0f172a;
+    color: #f8fafc;
+    border-radius: 6px;
+    padding: 12px 14px;
+    overflow-x: auto;
+    page-break-inside: avoid;
+    margin: 12px 0;
+  }
+  pre code {
+    background: none;
+    padding: 0;
+    border: none;
+    font-size: 11px;
+    line-height: 1.45;
+    color: #f8fafc;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+    page-break-inside: avoid;
+  }
+  th, td {
+    border: 1px solid #cbd5e1;
+    padding: 7px 12px;
+    text-align: left;
+    font-size: 12px;
+  }
+  th {
+    background-color: #f1f5f9;
+    color: #1e293b;
+    font-weight: 600;
+  }
+  tr:nth-child(even) {
+    background-color: #f8fafc;
+  }
+  strong {
+    color: #0f172a;
+  }
+</style>
+</head>
+<body>
+<h1>CookMate — Comprehensive Technical Project Report</h1>
+<p><strong>Phase 1: Flutter Foundations and UI Mastery | Navigation &amp; Flutter Architecture</strong></p>
+<hr />
+<div class="student-card">
+  <div class="student-card-header">Academic Submission Details</div>
+  <table class="student-table">
+    <tr>
+      <td class="label"><strong>Student Name:</strong></td>
+      <td class="value">Subhan Khawaja</td>
+      <td class="label"><strong>Registration No:</strong></td>
+      <td class="value">SEP26-FD22-31</td>
+    </tr>
+    <tr>
+      <td class="label"><strong>Project:</strong></td>
+      <td class="value">CookMate Recipe Discovery & Cooking App</td>
+      <td class="label"><strong>Technology:</strong></td>
+      <td class="value">Flutter 3.x / Dart 3.x (Clean Architecture)</td>
+    </tr>
+  </table>
+</div>
+
+<h2>1. Executive Summary</h2>
+<p><strong>CookMate</strong> is a production-grade, cross-platform culinary recipe application built using Flutter and Dart. Designed to showcase modern software engineering practices, this application implements:<br />
+- A responsive layout that adapts across mobile phones, tablets, and desktop/web viewports.<br />
+- Declarative navigation with deep linking via <strong>GoRouter</strong>.<br />
+- Robust state management with <strong>Provider</strong> (<code>ChangeNotifier</code>).<br />
+- Persistent offline data storage using <strong>SharedPreferences</strong>.<br />
+- Material Design 3 theming featuring dynamic Light and Dark modes.<br />
+- Fluid micro-interactions and <strong>Hero animations</strong> between list cards and detail views.<br />
+- An interactive cooking checklist and active step guidance.<br />
+- A validated multi-field recipe creation form with dynamic ingredient and instruction row management.<br />
+- A dataset of <strong>15 gourmet recipes</strong> across three global culinary traditions (<strong>Italian</strong>, <strong>Asian</strong>, and <strong>Mexican</strong>).</p>
+<p>This report outlines the technical architecture, design system, routing strategy, data modeling, screen implementations, and verification procedures for the CookMate application.</p>
+<hr />
+<h2>2. System Architecture &amp; Software Design</h2>
+<h3>2.1 Architectural Pattern</h3>
+<p>CookMate adopts a <strong>Layered Feature Architecture</strong> following Clean Architecture principles to ensure strict separation of concerns, maintainability, and testability:</p>
+<pre><code>┌────────────────────────────────────────────────────────┐
+│                   Presentation Layer                   │
+│   Screens (Home, List, Detail, Search, Favs, Add)      │
+│   Reusable Custom Widgets &amp; Responsive Layouts         │
+└───────────────────────────▲────────────────────────────┘
+                            │
+┌───────────────────────────┴────────────────────────────┐
+│                    State &amp; Logic Layer                 │
+│        RecipeProvider      │      ThemeProvider        │
+└───────────────────────────▲────────────────────────────┘
+                            │
+┌───────────────────────────┴────────────────────────────┐
+│                     Data &amp; Domain Layer                │
+│    Recipe &amp; Ingredient Models   │  JSON Dataset        │
+│    FavoritesService (Local Storage with SharedPreferences)│
+└────────────────────────────────────────────────────────┘
+</code></pre>
+<ol>
+<li><strong>Presentation Layer (<code>lib/screens</code>, <code>lib/widgets</code>)</strong>:</li>
+<li>Contains pure UI components and screen layouts.</li>
+<li>Decoupled from direct data sources; consumes state via <code>Provider.of</code> or <code>Consumer</code>.</li>
+<li>Adapts dynamically to viewport widths using breakpoints.</li>
+<li><strong>State &amp; Logic Layer (<code>lib/providers</code>)</strong>:</li>
+<li><code>RecipeProvider</code>: Central state controller managing the master recipe list, active category filters, search queries, sort options, and favorite toggles.</li>
+<li><code>ThemeProvider</code>: Manages <code>ThemeMode.light</code> and <code>ThemeMode.dark</code> toggling with persistent preferences.</li>
+<li><strong>Data Layer (<code>lib/data</code>)</strong>:</li>
+<li><code>models/recipe_model.dart</code>: Immutable data models with <code>toMap</code>, <code>fromMap</code>, and <code>copyWith</code> utilities.</li>
+<li><code>recipes_data.dart</code>: 15 recipe entries serialized in JSON format.</li>
+<li><code>services/favorites_service.dart</code>: Encapsulates local persistence via <code>SharedPreferences</code>.</li>
+</ol>
+<hr />
+<h2>3. Navigation &amp; Deep Linking Architecture (GoRouter)</h2>
+<p>Routing is managed declaratively through Flutter's modern <strong>GoRouter</strong> package (<code>v17+</code>).</p>
+<h3>3.1 StatefulShellRoute Hierarchy</h3>
+<p>CookMate implements a <code>StatefulShellRoute.indexedStack</code> to preserve the scroll position and state of each main branch when switching tabs:</p>
+<table>
+<thead>
+<tr>
+<th>Branch Index</th>
+<th>Route Path</th>
+<th>Screen</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>0</strong></td>
+<td><code>/home</code></td>
+<td><code>HomeScreen</code></td>
+<td>Featured recipes, category shortcuts, daily tip</td>
+</tr>
+<tr>
+<td><strong>1</strong></td>
+<td><code>/recipes</code></td>
+<td><code>RecipeListScreen</code></td>
+<td>Full recipe catalog with sorting &amp; category chips</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td><code>/search</code></td>
+<td><code>SearchScreen</code></td>
+<td>Real-time search query matching with tag chips</td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td><code>/favorites</code></td>
+<td><code>FavoritesScreen</code></td>
+<td>Persisted offline favorites list with swipe actions</td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td><code>/add</code></td>
+<td><code>AddRecipeScreen</code></td>
+<td>Form to author and validate new recipes</td>
+</tr>
+</tbody>
+</table>
+<h3>3.2 Deep Linking &amp; URL Parameters</h3>
+<ul>
+<li>Individual recipes are accessed via <code>/recipes/:id</code> (e.g., <code>/recipes/rec_1</code> or <code>/recipes/rec_7</code>).</li>
+<li>When a user enters a URL directly in a web browser or triggers an OS deep link, GoRouter parses the <code>state.pathParameters['id']</code> and launches the <code>RecipeDetailScreen</code> directly.</li>
+<li>If an invalid route or non-existent recipe ID is supplied, GoRouter routes to an <code>errorBuilder</code> widget offering a 404 page with a "Return to Home" recovery action.</li>
+</ul>
+<hr />
+<h2>4. Material Design 3 Theming &amp; Responsive Design</h2>
+<h3>4.1 Color System &amp; Brand Identity</h3>
+<p>The visual identity of CookMate is built on a culinary palette:<br />
+- <strong>Primary Color</strong>: Deep Orange (<code>#FF5722</code>) — evokes warmth, appetizing energy, and focus.<br />
+- <strong>Secondary Color</strong>: Saffron Amber (<code>#FF9800</code>) — accents and ratings.<br />
+- <strong>Accent Color</strong>: Fresh Basil Green (<code>#4CAF50</code>) — health indicators and checklist completion.<br />
+- <strong>Surface &amp; Background</strong>:<br />
+  - <em>Light Theme</em>: Crisp off-white (<code>#FBFBFB</code>) and card surfaces (<code>#FFFFFF</code>).<br />
+  - <em>Dark Theme</em>: Charcoal (<code>#121212</code>) and card surfaces (<code>#262626</code>).</p>
+<h3>4.2 Responsive Layout Strategy</h3>
+<p>CookMate adapts to the user's screen dimension using <code>ResponsiveLayout</code> breakpoints:<br />
+- <strong>Mobile (&lt; 600px)</strong>:<br />
+  - Bottom <code>NavigationBar</code> with 5 destinations.<br />
+  - 1 or 2-column recipe cards.<br />
+  - Full-width scrollable detail view.<br />
+- <strong>Tablet (600px – 1024px)</strong>:<br />
+  - Left-hand <code>NavigationRail</code> preserving vertical canvas.<br />
+  - 3-column recipe grid.<br />
+- <strong>Desktop &amp; Web (&gt; 1024px)</strong>:<br />
+  - Extended <code>NavigationRail</code>.<br />
+  - 4-column recipe grid.<br />
+  - Centered detail container constrained to <code>maxWidth: 800px</code> for optimal typography hierarchy and readability.</p>
+<hr />
+<h2>5. Detailed Screen Implementations</h2>
+<h3>Screen 1: Home Screen (<code>/home</code>)</h3>
+<ul>
+<li><strong>Brand Header</strong>: Culinary icon, CookMate typography, and real-time Dark/Light theme toggle switch.</li>
+<li><strong>Interactive Search Preview</strong>: Tapping routes immediately to <code>/search</code>.</li>
+<li><strong>Hero Promotional Banner</strong>: "Chef of the Week" banner celebrating handcrafted international cuisines.</li>
+<li><strong>Category Chips Carousel</strong>: Tap any chip to filter recipes by Italian, Asian, or Mexican.</li>
+<li><strong>Featured Recipes Carousel</strong>: Horizontal carousel featuring the 4 highest-rated recipes with animated favorite buttons.</li>
+<li><strong>Chef's Pro Tip Card</strong>: Daily culinary insight card designed to boost user engagement.</li>
+</ul>
+<h3>Screen 2: Recipe List Screen (<code>/recipes</code>)</h3>
+<ul>
+<li><strong>Category Filter Tabs</strong>: Horizontally scrollable chips allowing instant cuisine switching.</li>
+<li><strong>Multi-Option Sorting Dropdown</strong>:</li>
+<li>Top Rated (highest rating first)</li>
+<li>Quickest (lowest prep + cook time)</li>
+<li>Lowest Calories</li>
+<li>A-Z Alphabetical</li>
+<li><strong>Layout Switcher</strong>: One-tap toggle between responsive multi-column <strong>Grid View</strong> and compact <strong>List View</strong>.</li>
+<li><strong>Real-Time Counter</strong>: Displays current matching recipe count.</li>
+</ul>
+<h3>Screen 3: Recipe Detail Screen (<code>/recipes/:id</code>)</h3>
+<ul>
+<li><strong>SliverAppBar with Hero Image</strong>: The recipe's photo smoothly expands from the catalog card using Flutter's <code>Hero</code> widget (<code>tag: recipe-image-${recipe.id}</code>).</li>
+<li><strong>Favorite &amp; Share Actions</strong>: Tapping the heart toggles storage in <code>SharedPreferences</code>; tapping share provides a formatted link.</li>
+<li><strong>Specs Summary</strong>: Quick badges for Prep Time, Cook Time, Servings count, and Difficulty level.</li>
+<li><strong>Nutritional Fact Breakdown</strong>: 4 macro badges for Calories, Protein, Carbs, and Fat.</li>
+<li><strong>Interactive Ingredients Checklist</strong>: Checkboxes allow the cook to check off ingredients one by one as they prepare the dish.</li>
+<li><strong>Step-by-Step Instructions</strong>: Interactive step cards with circular indices that highlight when active.</li>
+<li><strong>Tag Cloud</strong>: Badges showing recipe metadata (e.g., <code>#Pasta</code>, <code>#Street Food</code>, <code>#Vegetarian</code>).</li>
+</ul>
+<h3>Screen 4: Live Search Screen (<code>/search</code>)</h3>
+<ul>
+<li><strong>Auto-Filtering Input</strong>: Automatically filters matching recipes as the user types across recipe title, category, tags, and ingredient names.</li>
+<li><strong>Popular Search Chips</strong>: Quick-tap suggestion chips for "Pasta", "Ramen", "Tacos", "Chicken", "Salmon", etc.</li>
+<li><strong>Empty State</strong>: Custom vector graphic and helpful suggestions when no items match.</li>
+</ul>
+<h3>Screen 5: Favorites Screen (<code>/favorites</code>)</h3>
+<ul>
+<li><strong>Persistent Storage</strong>: Retains saved recipes between app restarts via <code>SharedPreferences</code>.</li>
+<li><strong>Swipe-to-Dismiss</strong>: Users can swipe left on any saved recipe to remove it with an "Undo" SnackBar option.</li>
+<li><strong>Badge Counter</strong>: Displays the number of currently saved recipes.</li>
+<li><strong>Empty State</strong>: Friendly graphic with a direct "Discover Recipes" button leading to the catalog.</li>
+</ul>
+<h3>Screen 6: Validated Recipe Submission Form (<code>/add</code>)</h3>
+<ul>
+<li><strong>Form Architecture</strong>: Enclosed in a <code>Form</code> widget managed by <code>GlobalKey&lt;FormState&gt;()</code>.</li>
+<li><strong>Validation Rules</strong>:</li>
+<li><em>Title</em>: Required, minimum 3 characters.</li>
+<li><em>Category</em>: Required selection (Italian, Asian, Mexican).</li>
+<li><em>Description</em>: Required, minimum 10 characters.</li>
+<li><em>Prep &amp; Cook Time</em>: Numeric validation, must be positive integers.</li>
+<li><em>Servings &amp; Calories</em>: Numeric validation, must be greater than zero.</li>
+<li><em>Image URL</em>: Live image preview thumbnail displayed dynamically upon input.</li>
+<li><em>Ingredients List</em>: Dynamic form rows where users can add or remove ingredient rows (at least 1 required).</li>
+<li><em>Instructions List</em>: Dynamic numbered rows where users can add or remove steps (at least 1 required).</li>
+<li><strong>Publish Flow</strong>: On valid submission, constructs an immutable <code>Recipe</code> object, inserts it at index 0 in <code>RecipeProvider</code>, displays a celebratory SnackBar, and navigates directly to the new recipe's detail screen.</li>
+</ul>
+<hr />
+<h2>6. Local Storage &amp; Data Persistence Architecture</h2>
+<p>The app uses <code>shared_preferences</code> to persist user favorites locally on the device:<br />
+1. <code>FavoritesService</code> stores a <code>List&lt;String&gt;</code> representing unique <code>recipe.id</code> values under the key <code>cookmate_favorite_recipe_ids</code>.<br />
+2. When the app initializes, <code>RecipeProvider</code> reads the saved IDs and updates the <code>isFavorite</code> flag for all recipes.<br />
+3. Every favorite toggle action synchronously updates the in-memory state and asynchronously writes the updated string list to disk.<br />
+4. The user's Light/Dark mode preference is likewise stored under <code>cookmate_theme_mode</code>.</p>
+<hr />
+<h2>7. Curated Recipe Dataset (15 Recipes)</h2>
+<p>CookMate includes 15 recipes across 3 global categories:</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Title</th>
+<th>Category</th>
+<th>Total Time</th>
+<th>Calories</th>
+<th>Difficulty</th>
+<th>Rating</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>rec_1</code></td>
+<td>Classic Margherita Pizza</td>
+<td>Italian</td>
+<td>32 min</td>
+<td>280 kcal</td>
+<td>Medium</td>
+<td>4.9 ⭐</td>
+</tr>
+<tr>
+<td><code>rec_2</code></td>
+<td>Creamy Fettuccine Alfredo</td>
+<td>Italian</td>
+<td>25 min</td>
+<td>520 kcal</td>
+<td>Easy</td>
+<td>4.8 ⭐</td>
+</tr>
+<tr>
+<td><code>rec_3</code></td>
+<td>Traditional Bolognese Ragu</td>
+<td>Italian</td>
+<td>115 min</td>
+<td>480 kcal</td>
+<td>Hard</td>
+<td>4.9 ⭐</td>
+</tr>
+<tr>
+<td><code>rec_4</code></td>
+<td>Classic Italian Tiramisu</td>
+<td>Italian</td>
+<td>30 min</td>
+<td>360 kcal</td>
+<td>Medium</td>
+<td>5.0 ⭐</td>
+</tr>
+<tr>
+<td><code>rec_5</code></td>
+<td>Creamy Tuscan Garlic Chicken</td>
+<td>Italian</td>
+<td>35 min</td>
+<td>490 kcal</td>
+<td>Easy</td>
+<td>4.7 ⭐</td>
+</tr>
+<tr>
+<td><code>rec_6</code></td>
+<td>Authentic Chicken Pad Thai</td>
+<td>Asian</td>
+<td>35 min</td>
+<td>460 kcal</td>
+<td>Medium</td>
+<td>4.9 ⭐</td>
+</tr>
+<tr>
+<td><code>rec_7</code></td>
+<td>Rich Japanese Chicken Ramen</td>
+<td>Asian</td>
+<td>75 min</td>
+<td>510 kcal</td>
+<td>Hard</td>
+<td>4.9 ⭐</td>
+</tr>
+<tr>
+<td><code>rec_8</code></td>
+<td>Crispy Teriyaki Salmon</td>
+<td>Asian</td>
+<td>27 min</td>
+<td>420 kcal</td>
+<td>Easy</td>
+<td>4.8 ⭐</td>
+</tr>
+<tr>
+<td><code>rec_9</code></td>
+<td>Thai Green Coconut Curry</td>
+<td>Asian</td>
+<td>40 min</td>
+<td>390 kcal</td>
+<td>Medium</td>
+<td>4.9 ⭐</td>
+</tr>
+<tr>
+<td><code>rec_10</code></td>
+<td>Honey Garlic Asian Chicken</td>
+<td>Asian</td>
+<td>30 min</td>
+<td>440 kcal</td>
+<td>Easy</td>
+<td>4.8 ⭐</td>
+</tr>
+<tr>
+<td><code>rec_11</code></td>
+<td>Sizzling Steak Fajitas</td>
+<td>Mexican</td>
+<td>40 min</td>
+<td>480 kcal</td>
+<td>Medium</td>
+<td>4.9 ⭐</td>
+</tr>
+<tr>
+<td><code>rec_12</code></td>
+<td>Authentic Street Tacos</td>
+<td>Mexican</td>
+<td>35 min</td>
+<td>380 kcal</td>
+<td>Easy</td>
+<td>5.0 ⭐</td>
+</tr>
+<tr>
+<td><code>rec_13</code></td>
+<td>Cheesy Enchiladas Verdes</td>
+<td>Mexican</td>
+<td>50 min</td>
+<td>460 kcal</td>
+<td>Medium</td>
+<td>4.8 ⭐</td>
+</tr>
+<tr>
+<td><code>rec_14</code></td>
+<td>Fresh Guacamole &amp; Chips</td>
+<td>Mexican</td>
+<td>15 min</td>
+<td>210 kcal</td>
+<td>Easy</td>
+<td>4.9 ⭐</td>
+</tr>
+<tr>
+<td><code>rec_15</code></td>
+<td>Slow-Cooked Carnitas Bowl</td>
+<td>Mexican</td>
+<td>80 min</td>
+<td>540 kcal</td>
+<td>Medium</td>
+<td>4.9 ⭐</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>8. Verification, Testing &amp; Quality Assurance</h2>
+<ol>
+<li><strong>Static Analysis</strong>:</li>
+<li>Command: <code>flutter analyze</code></li>
+<li>Result: <strong>0 issues found</strong> across all source files.</li>
+<li><strong>Automated Unit &amp; State Tests</strong>:</li>
+<li>Command: <code>flutter test</code></li>
+<li>Verified JSON data integrity (all 15 recipes, correct categorization, ingredient &amp; step integrity).</li>
+<li>Verified <code>RecipeProvider</code> search query filtering and category filtering.</li>
+<li>Verified <code>FavoritesService</code> toggling and persistence logic.</li>
+<li>Verified dynamic recipe submission and insertion.</li>
+<li>Verified <code>ThemeProvider</code> mode switching.</li>
+<li>Result: <strong>All test suites passed (5/5 tests passing)</strong>.</li>
+<li><strong>Cross-Platform Web Compilation</strong>:</li>
+<li>Command: <code>flutter build web</code></li>
+<li>Result: <strong>Built <code>build/web</code> cleanly</strong> in 70.9s without compilation errors.</li>
+</ol>
+<hr />
+<h2>9. Conclusion</h2>
+<p>The <strong>CookMate</strong> project fulfills all requirements of Phase 1: Flutter Foundations and UI Mastery. By pairing strict architectural patterns (Layered Architecture, Provider state management, GoRouter declarative routing) with Material Design 3 aesthetics and persistent offline storage, CookMate provides a complete and engaging cross-platform recipe experience.</p>
+</body>
+</html>

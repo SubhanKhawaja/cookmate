@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../../screens/add_recipe_screen.dart';
 import '../../screens/favorites_screen.dart';
 import '../../screens/home_screen.dart';
@@ -7,6 +8,7 @@ import '../../screens/recipe_detail_screen.dart';
 import '../../screens/recipe_list_screen.dart';
 import '../../screens/search_screen.dart';
 import '../../screens/shell_screen.dart';
+import '../../providers/recipe_provider.dart';
 
 final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
@@ -88,6 +90,18 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) {
         final id = state.pathParameters['id'] ?? '';
         return RecipeDetailScreen(recipeId: id);
+      },
+    ),
+
+    // Edit Recipe Route (/recipes/:id/edit)
+    GoRoute(
+      parentNavigatorKey: _rootNavigatorKey,
+      path: '/recipes/:id/edit',
+      builder: (context, state) {
+        final id = state.pathParameters['id'] ?? '';
+        final provider = Provider.of<RecipeProvider>(context, listen: false);
+        final recipe = provider.getRecipeById(id);
+        return AddRecipeScreen(existingRecipe: recipe);
       },
     ),
   ],

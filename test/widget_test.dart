@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cookmate/data/models/recipe_model.dart';
@@ -135,6 +134,36 @@ void main() {
 
       await themeProvider.toggleTheme();
       expect(themeProvider.isDarkMode, false);
+    });
+
+    test('RecipeProvider rates a recipe and recalculates score correctly', () async {
+      final provider = RecipeProvider();
+      await Future.delayed(const Duration(milliseconds: 50));
+
+      final firstRecipe = provider.allRecipes.first;
+      final originalRating = firstRecipe.rating;
+      final originalCount = firstRecipe.reviewsCount;
+
+      expect(provider.getUserRating(firstRecipe.id), isNull);
+
+      // User rates 5.0
+      await provider.rateRecipe(firstRecipe.id, 5.0);
+
+      expect(provider.getUserRating(firstRecipe.id), 5.0);
+      final updatedRecipe = provider.getRecipeById(firstRecipe.id)!;
+      expect(updatedRecipe.reviewsCount, originalCount + 1);
+
+      // Verify recalculated average
+      final expectedAvg = ((originalRating * originalCount) + 5.0) / (originalCount + 1);
+      final roundedExpected = (expectedAvg * 10).roundToDouble() / 10;
+      expect(updatedRecipe.rating, roundedExpected);
+
+      // User updates their rating to 3.0
+      await provider.rateRecipe(firstRecipe.id, 3.0);
+      expect(provider.getUserRating(firstRecipe.id), 3.0);
+      final reUpdatedRecipe = provider.getRecipeById(firstRecipe.id)!;
+      // Count should NOT increment again
+      expect(reUpdatedRecipe.reviewsCount, originalCount + 1);
     });
   });
 }

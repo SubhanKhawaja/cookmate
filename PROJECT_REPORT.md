@@ -3,6 +3,13 @@
 
 ---
 
+### Student Information
+- **Student Name:** Subhan Khawaja
+- **Registration No:** SEP26-FD22-31
+- **Project:** CookMate — Culinary Recipe Application
+
+---
+
 ## 1. Executive Summary
 
 **CookMate** is a production-grade, cross-platform culinary recipe application built using Flutter and Dart. Designed to showcase modern software engineering practices, this application implements:
@@ -215,45 +222,6 @@ CookMate includes 15 recipes across 3 global categories:
 
 ---
 
-## 9. 4-6 Minute Video Demo Recording Script
-
-Use OBS Studio, Windows Xbox Game Bar (`Win + G`), or Clipchamp to record your demonstration:
-
-- **Minute 0:00 – 0:45 | Introduction & Overview**:
-  - Show the desktop or mobile viewport running CookMate.
-  - Introduce CookMate, its cross-platform architecture, and the Material Design 3 theming.
-  - Demonstrate toggling between Light and Dark mode using the top-right theme button.
-- **Minute 0:45 – 1:30 | Home Screen Exploration**:
-  - Point out the "Chef of the Week" banner and the categories horizontal scroll.
-  - Scroll through the "Featured Recipes" horizontal carousel.
-  - Mention the "Chef's Pro Tip" card.
-- **Minute 1:30 – 2:30 | Recipe Catalog & Sorting**:
-  - Switch to the "Recipes" tab.
-  - Filter by category ("Italian", "Asian", "Mexican").
-  - Test sorting: Sort by "Top Rated", then "Quickest", then "Lowest Calories".
-  - Toggle between the Multi-Column Grid View and the List View.
-- **Minute 2:30 – 3:30 | Recipe Detail & Cooking Mode**:
-  - Click on a card (e.g. "Classic Margherita Pizza" or "Japanese Ramen") and highlight the smooth **Hero image animation**.
-  - Review the nutrition badges (Calories, Protein, Carbs, Fat).
-  - Interact with the **Ingredients Checklist**: check off 3 or 4 items to show the real-time interactive cooking experience.
-  - Tap through the step-by-step instruction cards.
-  - Tap the Heart icon in the upper-right corner to favorite the recipe (notice the SnackBar).
-- **Minute 3:30 – 4:15 | Search & Favorites Persistence**:
-  - Switch to the "Search" tab and type "Tacos" or "Salmon" to show live filtering. Tap a quick tag like "Pasta".
-  - Switch to the "Favorites" tab. Show that the favorited recipe appears immediately.
-  - Demonstrate swipe-to-remove and undo.
-- **Minute 4:15 – 5:30 | Validated Recipe Submission Form**:
-  - Switch to the "Add" tab.
-  - Attempt to submit an empty form to show instant validation errors on required fields.
-  - Fill in a custom recipe: "Homemade Tuscan Garlic Bread", select Italian, add prep/cook time, and add an image URL with live preview thumbnail.
-  - Add an ingredient row and a step row.
-  - Tap "Submit & Publish Recipe" — show the success notification and the automatic transition to the newly published recipe detail view.
-- **Minute 5:30 – 6:00 | Responsive Layout & Wrap Up**:
-  - Resize the browser or desktop window to show the navigation bar seamlessly transforming into an adaptive `NavigationRail`.
-  - Conclude the demo.
-
----
-
-## 10. Conclusion
+## 9. Conclusion
 
 The **CookMate** project fulfills all requirements of Phase 1: Flutter Foundations and UI Mastery. By pairing strict architectural patterns (Layered Architecture, Provider state management, GoRouter declarative routing) with Material Design 3 aesthetics and persistent offline storage, CookMate provides a complete and engaging cross-platform recipe experience.
